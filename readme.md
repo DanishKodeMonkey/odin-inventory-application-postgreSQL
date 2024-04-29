@@ -4,4 +4,4 @@
 
 WIP
 
-![diagram of UML association between models](./public/diagrams/models-ULM-associations.png)
+![diagram of UML association between models](./public/diagrams/models-uml-association.drawio.svg)
