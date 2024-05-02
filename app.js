@@ -16,6 +16,8 @@ var app = express();
 // Mongoose connection to db
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
+
+// fetch credentials from .env excluded from git.
 const mongoDB = process.env.MONGO_URI;
 
 // log any errors
