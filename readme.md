@@ -1,35 +1,33 @@
 # Inventory management application
 
-## A prototype of a inventory management application using node, express, and mongoDB
+Welcome to The Odin Inventory Management Application, or TOIMA, a proof of concept prototype build to demonstrate the capabilities of a simple full stack application utilizing Node.js, Express, and mongoDB.
 
-This is a prototype inventory management application created as an exercise in the utilisation of node.js express, mongodb, and various middleware.
+The project serves as a exercise in applying these technologies to create an efficient inventory management system
 
-In essence, it is a project aimed to solidify the knowledge gained during various courses in the subject of creating a full stack application, offering a tool to present various items and categories of items to the user, as well as providing the tools to add and remove items and categories on the go.
+## Overview
 
-### A learning experience
+TOIMA is a project I started as a way to solidify the fundamentals of full stack development. From structuring the backend using Node.js and Express, to populating and managing data with MongoDB, this prototype encapsulates the essence of creating a functional and scalable application.
 
-This is a great exercise in the management of resources and keeping alot of moving parts together, as well as developing in a goal oriented manner, not taking on too many tasks at once, and reaching a end-product bit by bit.
+## A learning experience.
 
-Thanks to a solid seperation of concerns, various controllers, schemas, and models are modulated to provide easy to approach debugging as needed, and a pretty setup of the project.
-The importance of such practice as a application scales and becomes large, is not missed on me.
+This project emphasizes solidifying my abilities in resource management, maintaining a balance between various components, and adobting a goal-oriented approach, by breaking down tasks into manageable chunks. TOIMA demonstrates this step-by-step progression towards a fully realised application.
 
-### One schema, one module.
+### Modular design
 
-It's important to keep each schema seperated, so each model can be created from one module each. While it may seem cumbersome once alot of schemas are needed, it will show it's value as they are easy to find and diagnose as needed.
+TOIMAs architecture follows a principle of modularity, thanks to the skeleton framework established by Express, and a strict adherence to ensuring each component serves a distinct purpose. With each schema and controller for each model, the codebase remains organized and easy to navigate.
+This modular approach enhances maintainability, particularly as the application scales in complexity.
 
-### One schema, one controller.
+### Schema-Centric Controllers
 
-Each schema, and model gets it's own controller, this will allow all actions concerning that schema, in terms of GET and POST operations, to be programmed and stored, found and diagnosed easily.
-
-Each of these controllers will handle both the GET and POST actions for various actions concerning the schema in question, seperated into a collection of exported asynchronous functions.
-These are actions such as display all, display single, create, delete, and update.
-
-The get events will manage presenting a relevant view to the user, containing a form for them to fill out and return, this will be done in a POST action that will initiate a function, converting the form to a relevant query to send to the database.
-
-### How does it work?
-
-The odin inventory management application, TOIMA? Is a simple prototype that presents the user with data stored in a mongoDB backend, leveraging the powerful tools of node.js and express, as well as various middleware, to present the inventory in stock (fictionally) to the user, and allowing said user to store, delete and edit any item and category at will.
-
-WIP
+In TOIMA, each schema is paired with a dedicated controller, streamlining CRUD operations for the corresponding model. Wether it's retrieval of data, or updating records, these controllers provide a clear and concise interface for interacting with the database. By adhering to a one-schema, one-controller structure, TOIMA simplifies development and debugging tasks, and makes way for future features and improvements. While this projects scope has been small, the approach can scale and tie to more and bigger data sets by adding more Schemas and controllers as needed
 
 ![diagram of UML association between models](./public/diagrams/models-uml-association.drawio.svg)
+
+### Routing with Express
+
+Leveraging Express's routing module, TOIMA seamlessly connects the frontend and backend components. Through defined routes, users can access various functionalities of the application, including viewing inventory items, adding new categories, and more.
+This cohesive integration enables a smooth user experience.
+
+## How does it work?
+
+TOIMA uses the combined power of MongoDB, Node.js, and Express to deliver a simple and seamless experience for organizing and manipulating inventory data. And has served as a great experience to learn the capabilities of a well organized full stack project.
