@@ -1,3 +1,4 @@
+// import model to be used for various operations
 const Category = require('../models/category');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
