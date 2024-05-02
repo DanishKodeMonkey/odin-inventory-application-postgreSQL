@@ -69,3 +69,5 @@ router.get('/category/:id', category_controller.category_detail);
 
 // GET request to list ALL categorys
 router.get('/categories', category_controller.category_list);
+
+module.exports = router;
