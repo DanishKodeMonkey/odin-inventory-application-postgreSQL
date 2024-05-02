@@ -28,6 +28,10 @@ In TOIMA, each schema is paired with a dedicated controller, streamlining CRUD o
 Leveraging Express's routing module, TOIMA seamlessly connects the frontend and backend components. Through defined routes, users can access various functionalities of the application, including viewing inventory items, adding new categories, and more.
 This cohesive integration enables a smooth user experience.
 
+### Presented using EJS
+
+Thanks to Embedded JavaScript templating engine, we are able to combined templates and our database data models to create actual HTML code to respond to the users HTTP requests!
+
 ## How does it work?
 
 TOIMA uses the combined power of MongoDB, Node.js, and Express to deliver a simple and seamless experience for organizing and manipulating inventory data. And has served as a great experience to learn the capabilities of a well organized full stack project.
