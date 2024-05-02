@@ -4,6 +4,13 @@ const Item = require('../models/item');
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
 
+// Site home page, initial landing page
+exports.index = asyncHandler(async (req, res, next) => {
+    res.send('NOT IMPLEMENTED: Site home page');
+});
+
+// Item specific pages
+
 // display list of all items
 exports.item_list = asyncHandler(async (req, res, next) => {
     res.send('NOT IMPLEMENTED: item list');
