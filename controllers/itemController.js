@@ -9,15 +9,15 @@ const asyncHandler = require('express-async-handler');
 exports.index = asyncHandler(async (req, res, next) => {
     // Get item and category details for overview
     const [numItems, numCategories] = await Promise.all([
-        Item.countDocuments({}).exec,
-        Category.countDocuments({}).exec,
+        Item.countDocuments({}),
+        Category.countDocuments({}),
     ]);
 
     res.render('index', {
-        title:'Odin Inventory Application Home',
+        title: 'Odin Inventory Application Home',
         item_count: numItems,
         category_count: numCategories,
-    })
+    });
 });
 
 // Item specific pages
