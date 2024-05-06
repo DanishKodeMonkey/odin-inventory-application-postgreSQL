@@ -1,12 +1,23 @@
 // import model to be used for various operations
 const Item = require('../models/item');
+const Category = require('../models/category');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
 
 // Site home page, initial landing page
 exports.index = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: Site home page');
+    // Get item and category details for overview
+    const [numItems, numCategories] = await Promise.all([
+        Item.countDocuments({}).exec,
+        Category.countDocuments({}).exec,
+    ]);
+
+    res.render('index', {
+        title:'Odin Inventory Application Home',
+        item_count: numItems,
+        category_count: numCategories,
+    })
 });
 
 // Item specific pages

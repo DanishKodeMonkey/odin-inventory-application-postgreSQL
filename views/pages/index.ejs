@@ -12,6 +12,17 @@
                     Welcome to the index page of the inventory management
                     application!
                 </p>
+                <div>
+                    <span>Inventory overview:</span>
+                    <div>
+                        <h2>Item count:</h2>
+                        <h3><%= item_count %></h3>
+                    </div>
+                    <div>
+                        <h2>Category count:</h2>
+                        <h3><%= category_count %></h3>
+                    </div>
+                </div>
             </div>
         </main>
         <footer><%- include('../partials/footer.ejs') %></footer>
