@@ -24,7 +24,12 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // display list of all items
 exports.item_list = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item list');
+    const allItems = await Item.find({}, 'name category price numberInStock')
+        .sort({ name: 1 })
+        .populate('category')
+        .exec();
+
+    res.render('item_list', { title: 'Item list', item_list: allItems });
 });
 
 // Display detail page for specific item
