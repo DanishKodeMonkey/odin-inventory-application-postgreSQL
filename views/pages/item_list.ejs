@@ -12,7 +12,7 @@
                     <div>
                         <% item_list.forEach(function(item){ %>
                         <ul>
-                            <strong><%= item.name %></strong>
+                            <strong><a href="<%=item.url %>"><%= item.name %></a></strong>
                             <br />
                             Categories: <% if(item.category &&
                             item.category.length > 0){ %> <%
