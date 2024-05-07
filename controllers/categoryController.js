@@ -1,5 +1,6 @@
 // import model to be used for various operations
 const Category = require('../models/category');
+const Item = require('../models/item');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
@@ -16,7 +17,16 @@ exports.category_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for specific category
 exports.category_detail = asyncHandler(async (req, res, next) => {
-    res.send(`NOT IMPLEMENTED: Category details: ${req.params.id}`);
+    const [category, allItemsInCategory] = await Promise.all([
+        Category.findById(req.params.id).exec(),
+        Item.find({ category: req.params.id }, 'name url').exec(),
+    ]);
+
+    res.render('category_detail', {
+        title: 'Category details',
+        category: category,
+        category_items: allItemsInCategory,
+    });
 });
 
 // display category create form on GET
