@@ -4,6 +4,7 @@ const Category = require('../models/category');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
+const { body, validationResult } = require('express-validator');
 
 // Site home page, initial landing page
 exports.index = asyncHandler(async (req, res, next) => {
@@ -52,13 +53,90 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
 
 // display item create form on GET
 exports.item_create_get = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item create GET');
+    // get all categories for selecting categories to assign to
+    const allCategories = await Category.find().sort({ title: 1 }).exec();
+
+    res.render('item_form', {
+        title: 'Create item',
+        item: {},
+        errors: [],
+        categories: allCategories,
+    });
 });
 
 // handle item create on POST
-exports.item_create_post = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item create POST');
-});
+exports.item_create_post = [
+    // Convert chosen categories to an array
+    (req, res, next) => {
+        if (!Array.isArray(req.body.categories)) {
+            req.body.categories =
+                typeof req.body.categories === 'undefined'
+                    ? []
+                    : [req.body.categories];
+        }
+        next();
+    },
+    body('name', 'Name must not be empty.')
+        .isLength({ min: 1, max: 50 })
+        .escape(),
+    body('category.*').notEmpty().escape(),
+    body('description', 'Description must not be empty')
+        .isLength({ min: 1, max: 500 })
+        .escape(),
+    body('price', 'Price must not be empty')
+        .trim()
+        .isDecimal()
+        .withMessage('Price must be a decimal number')
+        .toFloat(),
+    body('numberInStock', 'Number in stock must not be empty')
+        .trim()
+        .isInt({ min: 0 })
+        .withMessage('In stock must be a non-negative number')
+        .toInt(),
+
+    // Process request after validation
+    asyncHandler(async (req, res, next) => {
+        console.log('Handling request body', req.body);
+        // Extract validation errors from request
+        const errors = validationResult(req);
+
+        // Create new book object
+        const item = new Item({
+            name: req.body.name,
+            category: req.body.categories,
+            description: req.body.description,
+            price: req.body.price,
+            numberInStock: req.body.numberInStock,
+        });
+
+        if (!errors.isEmpty()) {
+            console.log('Error found, returning item', item);
+            // Errors were found, re-render form with values
+
+            // Get all categories for re-render of form
+            const allCategories = await Category.find()
+                .sort({ title: 1 })
+                .exec();
+
+            // Mark selected categories as checked
+            for (const category of allCategories) {
+                if (item.category.includes(category._id)) {
+                    category.checked = 'true';
+                }
+            }
+            res.render('item_form', {
+                title: 'Create item',
+                categories: allCategories,
+                item: item,
+                errors: errors.array(),
+            });
+        } else {
+            // Data form valid, proceed
+            await item.save();
+            res.redirect(item.url);
+        }
+    }),
+];
 
 // display item delete form on GET
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
