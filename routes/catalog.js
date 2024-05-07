@@ -13,28 +13,28 @@ const item_controller = require('../controllers/itemController');
 router.get('/', item_controller.index);
 
 // GET request for creating a new item
-router.get('/item/create', item_controller.item_create_get);
+router.get('/items/create', item_controller.item_create_get);
 
 // POST request for creating a item
-router.post('/item/create', item_controller.item_create_post);
+router.post('/items/create', item_controller.item_create_post);
 
 // NOTE --- references with dynamic URLs (e.g :id) MUST come after any static URLs to avoid match
 // conflicts! That means anything that interacts with a specific id item for instance.
 
 // GET request to delete a item
-router.get('/item/:id/delete', item_controller.item_delete_get);
+router.get('/items/:id/delete', item_controller.item_delete_get);
 
 // POST request to delete an item
-router.post('/item/:id/delete', item_controller.item_delete_post);
+router.post('/items/:id/delete', item_controller.item_delete_post);
 
 // GET request to update an item
-router.get('/item/:id/update', item_controller.item_update_get);
+router.get('/items/:id/update', item_controller.item_update_get);
 
 // POST request to update an item
-router.post('/item/:id/update', item_controller.item_update_post);
+router.post('/items/:id/update', item_controller.item_update_post);
 
 // GET request for ONE item
-router.get('/item/:id', item_controller.item_detail);
+router.get('/items/:id', item_controller.item_detail);
 
 // GET request to list ALL items
 router.get('/items', item_controller.item_list);
