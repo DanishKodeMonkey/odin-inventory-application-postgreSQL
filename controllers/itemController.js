@@ -34,7 +34,20 @@ exports.item_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for specific item
 exports.item_detail = asyncHandler(async (req, res, next) => {
-    res.send(`NOT IMPLEMENTED: item details: ${req.params.id}`);
+    // get details of item
+    const item = await Item.findById(req.params.id).populate('category').exec();
+
+    // No result
+    if (item === null) {
+        const err = new Error('Item not found');
+        err.status = 404;
+        return next(err);
+    }
+
+    res.render('item_detail', {
+        title: 'Item details',
+        item: item,
+    });
 });
 
 // display item create form on GET
