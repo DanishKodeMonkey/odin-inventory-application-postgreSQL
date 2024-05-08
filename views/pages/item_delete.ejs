@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head.ejs') %>
+    </head>
+    <body class="container">
+        <header><%- include('../partials/header.ejs') %></header>
+        <main>
+            <div class="content">
+                <h1><%= title %>: <%= item.name %></h1>
+                <p><%= item.description %></p>
+                <p><%= item.price %></p>
+                <p><%= item.numberInStock %></p>
+                <hr>
+                <p>Do you really want to delete this item? This cannot be undone.</p>
+                    
+                <form method="post">
+                    <div class="form-group">
+                        <input type="hidden" id="itemid" class="form-control" name="itemid" value="<%= item._id %>">
+                        <button class="btn btn-primary" type="submit">Delete</button>
+                    </div>
+                </form>
+                 
+            </div>
+        </main>
+        <footer><%- include('../partials/footer.ejs') %></footer>
+    </body>
+</html>

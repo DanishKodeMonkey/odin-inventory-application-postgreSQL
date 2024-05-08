@@ -140,12 +140,27 @@ exports.item_create_post = [
 
 // display item delete form on GET
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item delete GET');
+    // since item is a bottom level association (not depended on by other items)
+    // we dont need to find any associations.
+    const item = await Item.findById(req.params.id).exec();
+
+    // no item found, redirect.
+    if (item === null) {
+        res.redirect('/catalog/items');
+    }
+
+    // item found, render deletion page
+    res.render('item_delete', {
+        title: 'Delete item',
+        item: item,
+    });
 });
 
 // handle item delete on POST
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item delete POST');
+    // Since no checks have to be made, if the user confirms in form, just delete.
+    await Item.findByIdAndDelete(req.body.itemid);
+    res.redirect('/catalog/items');
 });
 
 // display item update form on GET

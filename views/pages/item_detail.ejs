@@ -21,6 +21,8 @@
                 <p><strong>Price: </strong><%= item.price %></p>
                 <p><strong>In stock: </strong><%= item.numberInStock %></p>
             </div>
+            <hr>
+            <p><a href="<%= item.url+'/delete' %>">Delete item</a></p>
         </main>
         <footer><%- include('../partials/footer.ejs') %></footer>
     </body>
