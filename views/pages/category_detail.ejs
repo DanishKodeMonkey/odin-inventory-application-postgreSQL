@@ -9,6 +9,7 @@
             <div class="content">
                 <h1><%= title %></h1>
                 <h2><%= category.title %></h2>
+
                 <p>
                     <strong>Items in category: </strong>
                     <% if(category_items && category_items.length > 0){ %> 
@@ -18,6 +19,8 @@
                     <% } %> 
                 </p>
             </div>
+            <hr>
+            <p><a href="<%= category.url+'/delete' %>">Delete category</a></p>
         </main>
         <footer><%- include('../partials/footer.ejs') %></footer>
     </body>

@@ -93,12 +93,52 @@ exports.category_create_post = [
 
 // display category delete form on GET
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: Category delete GET');
+    // remember: prevent deletion of categories if items are associated
+    const [category, allItemsInCategory] = await Promise.all([
+        // First, find the category in question
+        Category.findById(req.params.id).exec(),
+        // find any items with category id matching category in question
+        Item.find({ category: req.params.id }, 'name numberInStock').exec(),
+    ]);
+
+    // no categories found(by id)
+    if (category === null) {
+        // redirect to categories list
+        res.redirect('/catalog/categories');
+    }
+
+    // category found, render deletion page, pass items for error.
+    res.render('category_delete', {
+        title: 'Delete Category',
+        category: category,
+        category_items: allItemsInCategory,
+    });
 });
 
 // handle category delete on POST
 exports.category_delete_post = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: Category delete POST');
+    // Again, get both category and items associated
+    const [category, allItemsInCategory] = await Promise.all([
+        Category.findById(req.params.id).exec(),
+        Item.find({ category: req.params.id }, 'title numberInStock').exec(),
+    ]);
+
+    if (allItemsInCategory.length > 0) {
+        // Category has items, render just like GET route, will display an error
+        res.render('category_delete', {
+            title: 'Delete Category',
+            category: category,
+            category_items: allItemsInCategory,
+        });
+        // end POST here.
+        return;
+    } else {
+        // Category has no items, delete object and redirect to list
+        // use categoryid created in the form of the view.
+        await Category.findByIdAndDelete(req.body.categoryid);
+        // redirect to categories catalog
+        res.redirect('/catalog/categories');
+    }
 });
 
 // display category update form on GET
