@@ -165,10 +165,111 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 
 // display item update form on GET
 exports.item_update_get = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item update GET');
+    // in order to update an item we need to get the items and associated categories
+    const [item, allCategoriesOfItem] = await Promise.all([
+        Item.findById(req.params.id).populate('category').exec(),
+        Category.find().sort({ title: 1 }).exec(),
+    ]);
+
+    // item not found, return 404
+    if (item === null) {
+        const err = new Error('Item not found');
+        err.status = 404;
+        return next(err);
+    }
+
+    // Mark selected categories as checked
+    allCategoriesOfItem.forEach(category => {
+        if (item.category.includes(category._id)) category.checked = 'true';
+    });
+
+    // Reuse item form from creation
+    res.render('item_form', {
+        title: 'Update item',
+        categories: allCategoriesOfItem,
+        item: item,
+        errors: [],
+    });
 });
 
 // handle item update on POST
-exports.item_update_post = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: item update POST');
-});
+exports.item_update_post = [
+    // Much like create, convert categories to array
+    (req, res, next) => {
+        if (!Array.isArray(req.body.categories)) {
+            req.body.categories =
+                typeof req.body.categories === 'undefined'
+                    ? []
+                    : [req.body.categories];
+        }
+        // proceed to next middleware
+        next();
+    },
+
+    // Validation and dsanitization is litteraly copy pasted from create POST.
+    body('name', 'Name must not be empty.')
+        .isLength({ min: 1, max: 50 })
+        .escape(),
+    body('category.*').notEmpty().escape(),
+    body('description', 'Description must not be empty')
+        .isLength({ min: 1, max: 500 })
+        .escape(),
+    body('price', 'Price must not be empty')
+        .trim()
+        .isDecimal()
+        .withMessage('Price must be a decimal number')
+        .toFloat(),
+    body('numberInStock', 'Number in stock must not be empty')
+        .trim()
+        .isInt({ min: 0 })
+        .withMessage('In stock must be a non-negative number')
+        .toInt(),
+
+    // process request after validation and sanitization
+    asyncHandler(async (req, res, next) => {
+        // Extract errors
+        const errors = validationResult(req);
+
+        //Create book object, but remember _id or new id will be assigned
+        const item = new Item({
+            name: req.body.name,
+            category:
+                typeof req.body.categories === 'undefined'
+                    ? []
+                    : req.body.categories,
+            description: req.body.description,
+            price: req.body.price,
+            numberInStock: req.body.numberInStock,
+            _id: req.params.id, // IMPORTANT FOR UPDATE
+        });
+
+        if (!errors.isEmpty()) {
+            // Errors found, re-render form
+
+            const categories = await Category.find().sort({ title: 1 }).exec();
+
+            // mark selected categories as checked
+            for (const category of categories) {
+                if (item.category.indexOf(category._id) > -1) {
+                    category.checked = 'true';
+                }
+            }
+            res.render('item_form', {
+                title: 'Update item',
+                categories: categories,
+                item: item,
+                errors: errors.array(),
+            });
+            return;
+        } else {
+            // Data is valid, proceed with update
+            const updatedItem = await Item.findByIdAndUpdate(
+                req.params.id,
+                item,
+                {}
+            );
+            // redirect to updated book details
+            res.redirect(updatedItem.url);
+        }
+    }),
+];
