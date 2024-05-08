@@ -143,10 +143,64 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
 
 // display category update form on GET
 exports.category_update_get = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: Category update GET');
+    // Get category to edit
+    const category = await Category.findById(req.params.id).exec();
+
+    if (category === null) {
+        const err = new Error('Category not found');
+        err.status = 404;
+        return next(err);
+    }
+
+    res.render('category_form', {
+        title: 'Update category',
+        category: category,
+        errors: [],
+    });
 });
 
 // handle category update on POST
-exports.category_update_post = asyncHandler(async (req, res, next) => {
-    res.send('NOT IMPLEMENTED: Category update POST');
-});
+exports.category_update_post = [
+    // Nothing to convert, validate body
+
+    // validate and sanitize fields for post
+    body('title')
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .withMessage('Title must be specified')
+        .isAlphanumeric()
+        .withMessage('Title name has non-alphanumeric characters'),
+    body('description').isLength({ min: 1, max: 500 }).escape(),
+
+    // Process request after validation and sanitization
+    asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req);
+
+        // Create category object, REMEMBER THE ID or a new id will be assigned
+        const category = new Category({
+            title: req.body.title,
+            description: req.body.description,
+            _id: req.params.id, // IMPORTANT for update operation
+        });
+        // Errors found ,re-render form
+        if (!errors.isEmpty()) {
+            // nothing important to fetch, just re-render
+
+            res.render('category_update', {
+                title: 'Update category',
+                category: category,
+                errors: errors.array(),
+            });
+            return;
+        } else {
+            // Data valid, update the record
+            const updatedCategory = await Category.findByIdAndUpdate(
+                req.params.id,
+                category,
+                {}
+            );
+            res.redirect(updatedCategory.url);
+        }
+    }),
+];
