@@ -8,6 +8,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const compression = require('compression');
+const helmet = require('helmet');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -34,6 +35,27 @@ async function main() {
 app.set('views', path.join(__dirname, 'views/pages'));
 app.set('view engine', 'ejs');
 
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                'https://stackpath.bootstrapcdn.com',
+            ],
+            'script-src': [
+                "'self'",
+                "'unsafe-inline'",
+                'https://stackpath.bootstrapcdn.com',
+                'code.jquery.com',
+                'cdn.jsdelivr.net',
+            ],
+            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'], // Allow fonts from Google Fonts and data: scheme
+            imgSrc: ["'self'"],
+        },
+    })
+);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
