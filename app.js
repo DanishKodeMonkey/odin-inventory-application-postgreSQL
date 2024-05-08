@@ -42,12 +42,12 @@ app.use(
             styleSrc: [
                 "'self'",
                 "'unsafe-inline'",
-                'https://stackpath.bootstrapcdn.com',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
             ],
             'script-src': [
                 "'self'",
                 "'unsafe-inline'",
-                'https://stackpath.bootstrapcdn.com',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
                 'code.jquery.com',
                 'cdn.jsdelivr.net',
             ],
