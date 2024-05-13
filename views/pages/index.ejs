@@ -3,25 +3,25 @@
     <head>
         <%- include('../partials/head.ejs') %>
     </head>
-    <body class="d-flex flex-column min-vh-100">
+    <body>
         <header><%- include('../partials/header.ejs') %></header>
-        <main class="flex-grow-1 d-flex align-items-stretch justify-content-center">
-            <div class="jumbotron text-center bg-light px-5">
-                <h1 class="display-3-flex py-3">This is the index page of the site</h1>
-                <p class="lead">
+        <main class="d-flex mx-5 align-items-center justify-content-center">
+            <div class="jumbotron">
+                <h1 class="display-3-flex">This is the index page of the site</h1>
+                <p class="lead-4-flex">
                     Welcome to the index page of the inventory management
                     application!
                 </p>
                 <hr class="my-2">
-                <div class="text-center">
-                    <span>Inventory overview:</span>
-                    <div>
-                        <h2>Item count:</h2>
-                        <h3><%= item_count %></h3>
+                <div class="justify-content-center align-content-center">
+                    <span class="text-center">Inventory overview:</span>
+                    <div class="flex-column justifalign-content-center">
+                        <h2 class="p-2">Item count:</h2>
+                        <h3 class="p-2"><%= item_count %></h3>
                     </div>
-                    <div>
-                        <h2>Category count:</h2>
-                        <h3><%= category_count %></h3>
+                    <div class="flex-column justify-content-sm-center">
+                        <h2 class="p-2">Category count:</h2>
+                        <h3 class="p-2"><%= category_count %></h3>
                     </div>
                 </div>
             </div>
