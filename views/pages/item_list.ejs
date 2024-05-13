@@ -6,23 +6,32 @@
     <body>
         <header><%- include('../partials/header.ejs') %></header>
         <main class="d-flex mx-5 align-items-center justify-content-center">
-            <div class="content">
+            <div class="container">
                 <h1><%= title %></h1>
                 <div>
                     <a href="/catalog/items/create">Create new item</a>
-                    <div>
+                    <div class="row">
                         <% item_list.forEach(function(item){ %>
-                        <ul>
-                            <strong><a href="<%=item.url %>"><%= item.name %></a></strong>
-                            <br />
-                            Categories: <% if(item.category &&
-                            item.category.length > 0){ %> <%
-                            item.category.forEach(function(category){ %>
-                            <li><a href="<%= category.url %>"><%=category.title %></a></li>
-                            <% }) %> <% } %> price: <%=item.price %>
-                            <br />
-                            In stock: <%=item.numberInStock %>
-                            <br />
+                        <ul class="col-md-4">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a href="<%=item.url %>"><%= item.name %></a></h5>
+                                    <p class="card-text">
+                                        <br />
+                                        Categories: <% if(item.category &&
+                                        item.category.length > 0){ %> <%
+                                        item.category.forEach(function(category){ %>
+                                        <li><a href="<%= category.url %>"><%=category.title %></a></li>
+                                        <% }) %>
+                                        </p>
+                                        <% } %> 
+                                        <p class="card-text">price: <%=item.price %></p>
+                                        <br />
+                                        <p class="card-text">In stock: <%=item.numberInStock %></p>
+                                        <br />
+
+                                </div>
+                            </div>
                         </ul>
                         <% }) %>
                     </div>
