@@ -5,24 +5,27 @@
     </head>
     <body>
         <header><%- include('../partials/header.ejs') %></header>
-        <main class="d-flex mx-5 align-items-center justify-content-center">
-            <div class="content">
-                <h1><%= title %></h1>
-                <h2><%= category.title %></h2>
-                <h3><%= category.description %></h3>
-
-                <p>
-                    <strong>Items in category: </strong>
-                    <% if(category_items && category_items.length > 0){ %> 
-                        <% category_items.forEach(function(item){ %>
-                            <li><a href="<%=item.url %>"><%=item.name %></a></li>
-                        <% }) %> 
-                    <% } %> 
-                </p>
+        <main class="d-flex mx-5 align-items-center justify-content-center flex-column">
+            <h1><%= title %></h1>
+            <div class="d-flex">
+                <p><a href="<%= category.url+'/delete' %>" class="btn btn-danger">Delete category</a></p>
+                <p><a href="<%= category.url+'/update' %>" class="btn btn-warning">Update category</a></p>
             </div>
-            <hr>
-            <p><a href="<%= category.url+'/delete' %>">Delete category</a></p>
-            <p><a href="<%= category.url+'/update' %>">Update category</a></p>
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title"><%= category.title %></h2>
+                    <h3 class="card-text"><%= category.description %></h3>
+                    <p class="card-text">
+                        <strong>Items in category: </strong>
+                        <% if(category_items && category_items.length > 0){ %>
+                            <% category_items.forEach(function(item){ %>
+                                <li class="badge bg-light"><a href="<%=item.url %>"><%=item.name %></a></li>
+                            <% }) %>
+                        <% } %>
+                    </p>
+                                </div>
+
+                </div>
         </main>
         <footer><%- include('../partials/footer.ejs') %></footer>
     </body>

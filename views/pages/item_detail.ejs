@@ -18,7 +18,7 @@
                         <strong>Categories: </strong>
                         <% if(item.category && item.category.length > 0){ %>
                             <% item.category.forEach(function(category){ %>
-                                <li><a href="<%=category.url %>" class="badge bg-secondary"><%=category.title %></a></li>
+                                <li class="badge bg-light"><a href="<%=category.url %>"><%=category.title %></a></li>
                             <% }) %>
                         <% } %>
                     </p>
