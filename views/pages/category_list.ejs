@@ -5,14 +5,14 @@
     </head>
     <body>
         <header><%- include('../partials/header.ejs') %></header>
-        <main class="d-flex mx-5 align-items-center justify-content-center">
+        <main class="d-flex mx-5 align-items-center justify-content-center ">
             <div class="container">
                 <h1><%= title %></h1>
-                <a href="/catalog/categories/create">Create new category</a>
+                <a href="/catalog/categories/create" class="btn btn-primary mb-3">Create new category</a>
                 <% if (category_list.length) { %>
-                <ul>
+                <ul class="list-group">
                     <% category_list.forEach(category => { %>
-                    <li>
+                    <li class="list-group-item">
                         <a href="<%= category.url %>"><%= category.title %></a>
                     </li>
                     <% }) %>
