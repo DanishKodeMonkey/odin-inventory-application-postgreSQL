@@ -2,8 +2,8 @@
 const { body, validationResult } = require('express-validator');
 
 // import model to be used for various operations
-const Category = require('../models/category');
-const Item = require('../models/item');
+const Category = require('../db/category');
+const Item = require('../db/item');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
