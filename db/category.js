@@ -5,7 +5,7 @@ const initCategoriesTable = async () => {
     const client = await pool.connect();
     console.log('DONE');
     try {
-        console.log('Attempting to create table...');
+        console.log('Attempting to create categories table...');
         await client.query('BEGIN');
 
         // create categories table
@@ -24,7 +24,7 @@ const initCategoriesTable = async () => {
 
         for (let category of categories) {
             await client.query(
-                `INSERT INTO categories(title, description) VALUES($1, $2) ON CONFLICT(title, description) DO NOTHING`,
+                `INSERT INTO categories(title, description) VALUES($1, $2) ON CONFLICT(title) DO NOTHING`,
                 [category.title, category.description]
             );
         }
@@ -42,4 +42,7 @@ const initCategoriesTable = async () => {
     }
 };
 
-module.exports = initCategoriesTable;
+initCategoriesTable();
+
+/* module.exports = initCategoriesTable;
+ */
