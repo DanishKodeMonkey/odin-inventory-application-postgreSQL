@@ -1,6 +1,16 @@
-// import model to be used for various operations
-const Item = require('../models/item');
-const Category = require('../models/category');
+// import relevant query functions
+const {
+    getItemCount,
+    getCategoryCount,
+    getAllItems,
+    getItemsById,
+    getAllCategories,
+    createItem,
+    getItemById,
+    deleteItemById,
+    getItemByIdWithCategory,
+    updateItemById,
+} = require('../db/queries');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
@@ -10,8 +20,8 @@ const { body, validationResult } = require('express-validator');
 exports.index = asyncHandler(async (req, res, next) => {
     // Get item and category details for overview
     const [numItems, numCategories] = await Promise.all([
-        Item.countDocuments({}),
-        Category.countDocuments({}),
+        getItemCount(),
+        getCategoryCount(),
     ]);
 
     res.render('index', {
@@ -25,18 +35,14 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // display list of all items
 exports.item_list = asyncHandler(async (req, res, next) => {
-    const allItems = await Item.find({}, 'name category price numberInStock')
-        .sort({ name: 1 })
-        .populate('category')
-        .exec();
-
+    const allItems = getAllItems();
     res.render('item_list', { title: 'Item list', item_list: allItems });
 });
 
 // Display detail page for specific item
 exports.item_detail = asyncHandler(async (req, res, next) => {
     // get details of item
-    const item = await Item.findById(req.params.id).populate('category').exec();
+    const item = await getItemById(req.params.id);
 
     // No result
     if (item === null) {
@@ -54,7 +60,7 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
 // display item create form on GET
 exports.item_create_get = asyncHandler(async (req, res, next) => {
     // get all categories for selecting categories to assign to
-    const allCategories = await Category.find().sort({ title: 1 }).exec();
+    const allCategories = await getAllCategories();
 
     res.render('item_form', {
         title: 'Create item',
@@ -96,25 +102,24 @@ exports.item_create_post = [
 
     // Process request after validation
     asyncHandler(async (req, res, next) => {
-        console.log('Handling request body', req.body);
         // Extract validation errors from request
         const errors = validationResult(req);
 
         // Create new book object
-        const item = new Item({
+        const item = {
             name: req.body.name,
             category: req.body.categories,
             description: req.body.description,
             price: req.body.price,
             numberInStock: req.body.numberInStock,
-        });
+        };
 
         if (!errors.isEmpty()) {
             console.log('Error found, returning item', item);
             // Errors were found, re-render form with values
 
             // Get all categories for re-render of form
-            const allCategories = await Category.find()
+            const allCategories = await getAllCategories()
                 .sort({ title: 1 })
                 .exec();
 
@@ -132,8 +137,8 @@ exports.item_create_post = [
             });
         } else {
             // Data form valid, proceed
-            await item.save();
-            res.redirect(item.url);
+            const newItem = await createItem(item);
+            res.redirect(`/catalog/items/${newItem.id}`);
         }
     }),
 ];
@@ -142,10 +147,10 @@ exports.item_create_post = [
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
     // since item is a bottom level association (not depended on by other items)
     // we dont need to find any associations.
-    const item = await Item.findById(req.params.id).exec();
+    const item = await getItemById(req.params.id);
 
     // no item found, redirect.
-    if (item === null) {
+    if (!item) {
         res.redirect('/catalog/items');
     }
 
@@ -159,34 +164,36 @@ exports.item_delete_get = asyncHandler(async (req, res, next) => {
 // handle item delete on POST
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
     // Since no checks have to be made, if the user confirms in form, just delete.
-    await Item.findByIdAndDelete(req.body.itemid);
+    await deleteItemById(req.body.itemid);
     res.redirect('/catalog/items');
 });
 
 // display item update form on GET
 exports.item_update_get = asyncHandler(async (req, res, next) => {
     // in order to update an item we need to get the items and associated categories
-    const [item, allCategoriesOfItem] = await Promise.all([
-        Item.findById(req.params.id).populate('category').exec(),
-        Category.find().sort({ title: 1 }).exec(),
+    const [item, allCategories] = await Promise.all([
+        getItemById(req.params.id),
+        getAllCategories(),
     ]);
 
     // item not found, return 404
-    if (item === null) {
+    if (!item) {
         const err = new Error('Item not found');
         err.status = 404;
         return next(err);
     }
 
     // Mark selected categories as checked
-    allCategoriesOfItem.forEach(category => {
-        if (item.category.includes(category._id)) category.checked = 'true';
-    });
+    for (const category of allCategories) {
+        if (item.category.includes(category.id)) {
+            category.checked = 'true';
+        }
+    }
 
     // Reuse item form from creation
     res.render('item_form', {
         title: 'Update item',
-        categories: allCategoriesOfItem,
+        categories: allCategories,
         item: item,
         errors: [],
     });
@@ -231,7 +238,7 @@ exports.item_update_post = [
         const errors = validationResult(req);
 
         //Create book object, but remember _id or new id will be assigned
-        const item = new Item({
+        const item = {
             name: req.body.name,
             category:
                 typeof req.body.categories === 'undefined'
@@ -240,17 +247,17 @@ exports.item_update_post = [
             description: req.body.description,
             price: req.body.price,
             numberInStock: req.body.numberInStock,
-            _id: req.params.id, // IMPORTANT FOR UPDATE
-        });
+            id: req.params.id, // IMPORTANT FOR UPDATE
+        };
 
         if (!errors.isEmpty()) {
             // Errors found, re-render form
 
-            const categories = await Category.find().sort({ title: 1 }).exec();
+            const categories = await getAllCategories();
 
             // mark selected categories as checked
             for (const category of categories) {
-                if (item.category.indexOf(category._id) > -1) {
+                if (item.category.includes(category.id)) {
                     category.checked = 'true';
                 }
             }
@@ -263,13 +270,9 @@ exports.item_update_post = [
             return;
         } else {
             // Data is valid, proceed with update
-            const updatedItem = await Item.findByIdAndUpdate(
-                req.params.id,
-                item,
-                {}
-            );
+            const updatedItem = await updateItemById(item.id, item);
             // redirect to updated book details
-            res.redirect(updatedItem.url);
+            res.redirect(`/catalog/items/${updatedItem.id}`);
         }
     }),
 ];
