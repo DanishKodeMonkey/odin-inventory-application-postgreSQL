@@ -1,69 +1,85 @@
 const pool = require('./pool');
 
+/* Counts for index */
+const indexQueries = {
+    getItemCount: async () => {
+        const query = 'SELECT COUNT(*) FROM items';
+        const { rows } = await pool.query(query);
+        return parseInt(rows[0].count, 10);
+    },
+
+    getCategoryCount: async () => {
+        const query = 'SELECT COUNT(*) FROM categories';
+        const { rows } = await pool.query(query);
+        return parseInt(rows[0].count, 10);
+    },
+};
+
 /* Categories */
-async function getAllCategories() {
-    const { rows } = await pool.query(
-        `SELECT * FROM categories ORDER BY title ASC`
-    );
-    return rows;
-}
+const categoryQueries = {
+    getAllCategories: async () => {
+        const { rows } = await pool.query(
+            `SELECT * FROM categories ORDER BY title ASC`
+        );
+        return rows;
+    },
 
-async function getCategoryById(categoryId) {
-    const query = 'SELECT title, description FROM categories WHERE id = $1';
-    const values = [categoryId];
+    getCategoryById: async (categoryId) => {
+        const query = 'SELECT title, description FROM categories WHERE id = $1';
+        const values = [categoryId];
 
-    try {
-        const res = await pool.query(query, values);
-        return res.rows[0];
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        throw err;
-    }
-}
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Ensure you're returning the first row
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
 
-async function createCategory(category) {
-    const query =
-        'INSERT INTO categories(title, description) VALUES ($1, $2) RETURNING *';
-    const values = [category.title, category.description];
+    createCategory: async (category) => {
+        const query =
+            'INSERT INTO categories(title, description) VALUES ($1, $2) RETURNING *';
+        const values = [category.title, category.description];
 
-    try {
-        const res = await pool.query(query, values);
-        return res.rows[0];
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        throw err;
-    }
-}
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Return the created category
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
 
-async function updateCategoryById(id, category) {
-    const query =
-        'UPDATE categories SET title = $2, description = $3 WHERE id = $1 RETURNING *';
-    const values = [id, category.title, category.description];
+    updateCategoryById: async (id, category) => {
+        const query =
+            'UPDATE categories SET title = $2, description = $3 WHERE id = $1 RETURNING *';
+        const values = [id, category.title, category.description];
 
-    try {
-        const res = await pool.query(query, values);
-        return res.rows[0];
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        throw err;
-    }
-}
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Return the updated category
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
 
-async function deleteCategoryById(categoryId) {
-    const query = 'DELETE from categories WHERE id=$1';
-    const values = [categoryId];
+    deleteCategoryById: async (categoryId) => {
+        const query = 'DELETE FROM categories WHERE id = $1';
+        const values = [categoryId];
 
-    try {
-        const res = await pool.query(query, values);
-        return res.rowCount;
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        throw err;
-    }
-}
+        try {
+            const { rowCount } = await pool.query(query, values);
+            return rowCount; // Return number of rows deleted
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
 
-async function getCategoryByIdWithItems(categoryId) {
-    const query = `
+    getCategoryByIdWithItems: async (categoryId) => {
+        const query = `
         SELECT categories.*, 
         COALESCE(json_agg(items.*) FILTER(WHERE items.id IS NOT NULL), '[]') AS items
         FROM categories 
@@ -71,22 +87,111 @@ async function getCategoryByIdWithItems(categoryId) {
         WHERE categories.id = $1
         GROUP BY categories.id
         `;
-    const values = [categoryId];
+        const values = [categoryId];
 
-    try {
-        const res = await pool.query(query, values);
-        return res.rows[0];
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        throw err;
-    }
-}
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Return the category with items
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
+};
+
+/* Items */
+const itemQueries = {
+    getAllItems: async () => {
+        const { rows } = await pool.query(
+            `SELECT * FROM items ORDER BY name ASC`
+        );
+        return rows;
+    },
+
+    getItemById: async (itemId) => {
+        // Corrected function name for consistency
+        const query = `
+    SELECT items.*, json_agg(categories.*) AS categories 
+    FROM items
+    LEFT JOIN categories ON items.category_id = categories.id
+    WHERE items.id = $1
+    GROUP BY items.id
+    `;
+        const values = [itemId];
+
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Return the item with categories
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
+
+    createItem: async (item) => {
+        const query = `
+    INSERT INTO items(name, category_id, description, price, numberInStock) 
+    VALUES($1, $2, $3, $4, $5) 
+    ON CONFLICT(name) DO NOTHING
+    RETURNING *`; // Ensure to RETURN * to get the created item
+        const values = [
+            item.name,
+            item.category_id,
+            item.description,
+            item.price,
+            item.numberInStock,
+        ];
+
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Return the created item
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
+
+    updateItemById: async (id, item) => {
+        const query = `
+    UPDATE items
+    SET name = $1, category_id = $2, description = $3, price = $4, numberInStock = $5
+    WHERE id = $6 
+    RETURNING *
+    `;
+        const values = [
+            item.name,
+            item.category_id,
+            item.description,
+            item.price,
+            item.numberInStock,
+            id,
+        ];
+
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0]; // Return the updated item
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
+
+    deleteItemById: async (itemId) => {
+        const query = 'DELETE FROM items WHERE id = $1';
+        const values = [itemId];
+
+        try {
+            const { rowCount } = await pool.query(query, values);
+            return rowCount; // Return number of rows deleted
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
+};
 
 module.exports = {
-    getAllCategories,
-    getCategoryById,
-    createCategory,
-    updateCategoryById,
-    deleteCategoryById,
-    getCategoryByIdWithItems,
+    indexQueries,
+    categoryQueries,
+    itemQueries,
 };
