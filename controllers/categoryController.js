@@ -1,16 +1,21 @@
 // import validation tools
 const { body, validationResult } = require('express-validator');
-
-// import model to be used for various operations
-const Category = require('../db/category');
-const Item = require('../db/item');
-
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
 
+// import relevant db query functions
+const {
+    getAllCategories,
+    getCategoryById,
+    createCategory,
+    updateCategoryById,
+    deleteCategoryById,
+    getCategoryByIdWithItems,
+} = require('../db/queries');
+
 // display list of all categories
 exports.category_list = asyncHandler(async (req, res, next) => {
-    const allCategories = await Category.find().sort({ title: 1 }).exec();
+    const allCategories = await getAllCategories();
 
     res.render('category_list', {
         title: 'Categories list',
@@ -20,15 +25,12 @@ exports.category_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for specific category
 exports.category_detail = asyncHandler(async (req, res, next) => {
-    const [category, allItemsInCategory] = await Promise.all([
-        Category.findById(req.params.id).exec(),
-        Item.find({ category: req.params.id }, 'name url').exec(),
-    ]);
+    const categoryWithItems = await getCategoryByIdWithItems(req.params.id);
 
     res.render('category_detail', {
         title: 'Category details',
-        category: category,
-        category_items: allItemsInCategory,
+        category: categoryWithItems,
+        category_items: categoryWithItems.items,
     });
 });
 
@@ -59,10 +61,10 @@ exports.category_create_post = [
         const errors = validationResult(req);
 
         // Create new category object with data
-        const category = new Category({
+        const category = {
             title: req.body.title,
             description: req.body.description,
-        });
+        };
 
         // Errors were found, render form again with sanitized values and error messages
         if (!errors.isEmpty()) {
@@ -75,17 +77,15 @@ exports.category_create_post = [
         } else {
             // Data is valid, proceed
             // Check if category already exist
-            const categoryExists = await Category.findOne({
-                title: req.body.title,
-            }).exec();
+            const categoryExists = await getCategoryById(req.body.title);
             if (categoryExists) {
                 //Category exists, redirect to detail page, dont save.
-                res.redirect(categoryExists.url);
+                res.redirect(`/catalog/categories/${categoryExists.id}`);
             } else {
                 // save to db
-                await category.save();
+                const newCategory = await createCategory(category);
                 //redirect to new category detail page
-                res.redirect(category.url);
+                res.redirect(`/catalog/categories/${newCategory.id}`);
             }
         }
     }),
@@ -94,15 +94,10 @@ exports.category_create_post = [
 // display category delete form on GET
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
     // remember: prevent deletion of categories if items are associated
-    const [category, allItemsInCategory] = await Promise.all([
-        // First, find the category in question
-        Category.findById(req.params.id).exec(),
-        // find any items with category id matching category in question
-        Item.find({ category: req.params.id }, 'name numberInStock').exec(),
-    ]);
+    const categoryWithItems = await getCategoryByIdWithItems(req.params.id);
 
     // no categories found(by id)
-    if (category === null) {
+    if (categoryWithItems === null) {
         // redirect to categories list
         res.redirect('/catalog/categories');
     }
@@ -110,32 +105,29 @@ exports.category_delete_get = asyncHandler(async (req, res, next) => {
     // category found, render deletion page, pass items for error.
     res.render('category_delete', {
         title: 'Delete Category',
-        category: category,
-        category_items: allItemsInCategory,
+        category: categoryWithItems,
+        category_items: categoryWithItems.items,
     });
 });
 
 // handle category delete on POST
 exports.category_delete_post = asyncHandler(async (req, res, next) => {
     // Again, get both category and items associated
-    const [category, allItemsInCategory] = await Promise.all([
-        Category.findById(req.params.id).exec(),
-        Item.find({ category: req.params.id }, 'title numberInStock').exec(),
-    ]);
+    const categoryWithItems = await getCategoryByIdWithItems(req.params.id);
 
-    if (allItemsInCategory.length > 0) {
+    if (categoryWithItems.items.length > 0) {
         // Category has items, render just like GET route, will display an error
         res.render('category_delete', {
             title: 'Delete Category',
-            category: category,
-            category_items: allItemsInCategory,
+            category: categoryWithItems,
+            category_items: categoryWithItems.items,
         });
         // end POST here.
         return;
     } else {
         // Category has no items, delete object and redirect to list
         // use categoryid created in the form of the view.
-        await Category.findByIdAndDelete(req.body.categoryid);
+        await deleteCategoryById(req.body.categoryId);
         // redirect to categories catalog
         res.redirect('/catalog/categories');
     }
@@ -144,7 +136,7 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
 // display category update form on GET
 exports.category_update_get = asyncHandler(async (req, res, next) => {
     // Get category to edit
-    const category = await Category.findById(req.params.id).exec();
+    const category = await getCategoryById(req.params.id);
 
     if (category === null) {
         const err = new Error('Category not found');
@@ -178,11 +170,11 @@ exports.category_update_post = [
         const errors = validationResult(req);
 
         // Create category object, REMEMBER THE ID or a new id will be assigned
-        const category = new Category({
+        const category = {
             title: req.body.title,
             description: req.body.description,
-            _id: req.params.id, // IMPORTANT for update operation
-        });
+            id: req.params.id, // IMPORTANT for update operation
+        };
         // Errors found ,re-render form
         if (!errors.isEmpty()) {
             // nothing important to fetch, just re-render
@@ -195,12 +187,11 @@ exports.category_update_post = [
             return;
         } else {
             // Data valid, update the record
-            const updatedCategory = await Category.findByIdAndUpdate(
+            const updatedCategory = await updateCategoryById(
                 req.params.id,
-                category,
-                {}
+                category
             );
-            res.redirect(updatedCategory.url);
+            res.redirect(`/catalog/categories/${updatedCategory.id}`);
         }
     }),
 ];
