@@ -1,16 +1,5 @@
 // import relevant query functions
-const {
-    getItemCount,
-    getCategoryCount,
-    getAllItems,
-    getItemsById,
-    getAllCategories,
-    createItem,
-    getItemById,
-    deleteItemById,
-    getItemByIdWithCategory,
-    updateItemById,
-} = require('../db/queries');
+const { indexQueries, itemQueries, categoryQueries } = require('../db/queries');
 
 // import asyncHandler manage error handling as a wrapper, voiding alot of boiletplate.
 const asyncHandler = require('express-async-handler');
@@ -20,8 +9,8 @@ const { body, validationResult } = require('express-validator');
 exports.index = asyncHandler(async (req, res, next) => {
     // Get item and category details for overview
     const [numItems, numCategories] = await Promise.all([
-        getItemCount(),
-        getCategoryCount(),
+        indexQueries.getItemCount(),
+        indexQueries.getCategoryCount(),
     ]);
 
     res.render('index', {
@@ -35,14 +24,14 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // display list of all items
 exports.item_list = asyncHandler(async (req, res, next) => {
-    const allItems = getAllItems();
+    const allItems = await itemQueries.getAllItems();
     res.render('item_list', { title: 'Item list', item_list: allItems });
 });
 
 // Display detail page for specific item
 exports.item_detail = asyncHandler(async (req, res, next) => {
     // get details of item
-    const item = await getItemById(req.params.id);
+    const item = await itemQueries.getItemById(req.params.id);
 
     // No result
     if (item === null) {
@@ -60,7 +49,7 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
 // display item create form on GET
 exports.item_create_get = asyncHandler(async (req, res, next) => {
     // get all categories for selecting categories to assign to
-    const allCategories = await getAllCategories();
+    const allCategories = await categoryQueries.getAllCategories();
 
     res.render('item_form', {
         title: 'Create item',
@@ -119,7 +108,8 @@ exports.item_create_post = [
             // Errors were found, re-render form with values
 
             // Get all categories for re-render of form
-            const allCategories = await getAllCategories()
+            const allCategories = await categoryQueries
+                .getAllCategories()
                 .sort({ title: 1 })
                 .exec();
 
@@ -137,7 +127,7 @@ exports.item_create_post = [
             });
         } else {
             // Data form valid, proceed
-            const newItem = await createItem(item);
+            const newItem = await itemQueries.createItem(item);
             res.redirect(`/catalog/items/${newItem.id}`);
         }
     }),
@@ -147,7 +137,7 @@ exports.item_create_post = [
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
     // since item is a bottom level association (not depended on by other items)
     // we dont need to find any associations.
-    const item = await getItemById(req.params.id);
+    const item = await itemQueries.getItemById(req.params.id);
 
     // no item found, redirect.
     if (!item) {
@@ -164,7 +154,7 @@ exports.item_delete_get = asyncHandler(async (req, res, next) => {
 // handle item delete on POST
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
     // Since no checks have to be made, if the user confirms in form, just delete.
-    await deleteItemById(req.body.itemid);
+    await itemQueries.deleteItemById(req.body.itemid);
     res.redirect('/catalog/items');
 });
 
@@ -172,8 +162,8 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 exports.item_update_get = asyncHandler(async (req, res, next) => {
     // in order to update an item we need to get the items and associated categories
     const [item, allCategories] = await Promise.all([
-        getItemById(req.params.id),
-        getAllCategories(),
+        itemQueries.getItemById(req.params.id),
+        categoryQueries.getAllCategories(),
     ]);
 
     // item not found, return 404
@@ -253,7 +243,7 @@ exports.item_update_post = [
         if (!errors.isEmpty()) {
             // Errors found, re-render form
 
-            const categories = await getAllCategories();
+            const categories = await categoryQueries.getAllCategories();
 
             // mark selected categories as checked
             for (const category of categories) {
@@ -270,7 +260,7 @@ exports.item_update_post = [
             return;
         } else {
             // Data is valid, proceed with update
-            const updatedItem = await updateItemById(item.id, item);
+            const updatedItem = await itemQueries.updateItemById(item.id, item);
             // redirect to updated book details
             res.redirect(`/catalog/items/${updatedItem.id}`);
         }

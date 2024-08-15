@@ -4,18 +4,11 @@ const { body, validationResult } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
 // import relevant db query functions
-const {
-    getAllCategories,
-    getCategoryById,
-    createCategory,
-    updateCategoryById,
-    deleteCategoryById,
-    getCategoryByIdWithItems,
-} = require('../db/queries');
+const { categoryQueries } = require('../db/queries');
 
 // display list of all categories
 exports.category_list = asyncHandler(async (req, res, next) => {
-    const allCategories = await getAllCategories();
+    const allCategories = await categoryQueries.getAllCategories();
 
     res.render('category_list', {
         title: 'Categories list',
@@ -25,7 +18,9 @@ exports.category_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for specific category
 exports.category_detail = asyncHandler(async (req, res, next) => {
-    const categoryWithItems = await getCategoryByIdWithItems(req.params.id);
+    const categoryWithItems = await categoryQueries.getCategoryByIdWithItems(
+        req.params.id
+    );
 
     res.render('category_detail', {
         title: 'Category details',
@@ -77,13 +72,17 @@ exports.category_create_post = [
         } else {
             // Data is valid, proceed
             // Check if category already exist
-            const categoryExists = await getCategoryById(req.body.title);
+            const categoryExists = await categoryQueries.getCategoryById(
+                req.body.title
+            );
             if (categoryExists) {
                 //Category exists, redirect to detail page, dont save.
                 res.redirect(`/catalog/categories/${categoryExists.id}`);
             } else {
                 // save to db
-                const newCategory = await createCategory(category);
+                const newCategory = await categoryQueries.createCategory(
+                    category
+                );
                 //redirect to new category detail page
                 res.redirect(`/catalog/categories/${newCategory.id}`);
             }
@@ -94,7 +93,9 @@ exports.category_create_post = [
 // display category delete form on GET
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
     // remember: prevent deletion of categories if items are associated
-    const categoryWithItems = await getCategoryByIdWithItems(req.params.id);
+    const categoryWithItems = await categoryQueries.getCategoryByIdWithItems(
+        req.params.id
+    );
 
     // no categories found(by id)
     if (categoryWithItems === null) {
@@ -113,7 +114,9 @@ exports.category_delete_get = asyncHandler(async (req, res, next) => {
 // handle category delete on POST
 exports.category_delete_post = asyncHandler(async (req, res, next) => {
     // Again, get both category and items associated
-    const categoryWithItems = await getCategoryByIdWithItems(req.params.id);
+    const categoryWithItems = await categoryQueries.getCategoryByIdWithItems(
+        req.params.id
+    );
 
     if (categoryWithItems.items.length > 0) {
         // Category has items, render just like GET route, will display an error
@@ -127,7 +130,7 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
     } else {
         // Category has no items, delete object and redirect to list
         // use categoryid created in the form of the view.
-        await deleteCategoryById(req.body.categoryId);
+        await categoryQueries.deleteCategoryById(req.body.categoryId);
         // redirect to categories catalog
         res.redirect('/catalog/categories');
     }
@@ -136,7 +139,7 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
 // display category update form on GET
 exports.category_update_get = asyncHandler(async (req, res, next) => {
     // Get category to edit
-    const category = await getCategoryById(req.params.id);
+    const category = await categoryQueries.getCategoryById(req.params.id);
 
     if (category === null) {
         const err = new Error('Category not found');
@@ -187,7 +190,7 @@ exports.category_update_post = [
             return;
         } else {
             // Data valid, update the record
-            const updatedCategory = await updateCategoryById(
+            const updatedCategory = await categoryQueries.updateCategoryById(
                 req.params.id,
                 category
             );
