@@ -1,7 +1,7 @@
 {
   "name": "odin-inventory-application",
   "version": "0.0.0",
-  "engines":{
+  "engines": {
     "node": ">=16.17.1"
   },
   "private": true,
@@ -22,7 +22,8 @@
     "helmet": "^7.1.0",
     "http-errors": "~1.6.3",
     "mongoose": "^8.3.2",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "pg": "^8.12.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
