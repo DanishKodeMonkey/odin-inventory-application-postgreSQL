@@ -111,9 +111,9 @@ const itemQueries = {
     getItemById: async (itemId) => {
         // Corrected function name for consistency
         const query = `
-    SELECT items.*, json_agg(categories.*) AS categories 
+    SELECT items.*, COALESCE(json_agg(categories.*) FILTER(WHERE categories.id IS NOT NULL), '[]') AS categories 
     FROM items
-    LEFT JOIN categories ON items.category_id = categories.id
+    LEFT JOIN UNNEST(items.category_ids) AS category_id ON category_id = categories.id
     WHERE items.id = $1
     GROUP BY items.id
     `;
@@ -130,13 +130,13 @@ const itemQueries = {
 
     createItem: async (item) => {
         const query = `
-    INSERT INTO items(name, category_id, description, price, numberInStock) 
+    INSERT INTO items(name, category_ids, description, price, numberInStock) 
     VALUES($1, $2, $3, $4, $5) 
     ON CONFLICT(name) DO NOTHING
     RETURNING *`; // Ensure to RETURN * to get the created item
         const values = [
             item.name,
-            item.category_id,
+            item.category_ids,
             item.description,
             item.price,
             item.numberInStock,
@@ -154,13 +154,13 @@ const itemQueries = {
     updateItemById: async (id, item) => {
         const query = `
     UPDATE items
-    SET name = $1, category_id = $2, description = $3, price = $4, numberInStock = $5
+    SET name = $1, category_ids = $2, description = $3, price = $4, numberInStock = $5
     WHERE id = $6 
     RETURNING *
     `;
         const values = [
             item.name,
-            item.category_id,
+            item.category_ids,
             item.description,
             item.price,
             item.numberInStock,
