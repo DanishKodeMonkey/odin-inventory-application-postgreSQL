@@ -30,7 +30,7 @@ const categoryQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Ensure you're returning the first row
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -44,7 +44,7 @@ const categoryQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Return the created category
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -58,7 +58,7 @@ const categoryQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Return the updated category
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -71,7 +71,7 @@ const categoryQueries = {
 
         try {
             const { rowCount } = await pool.query(query, values);
-            return rowCount; // Return number of rows deleted
+            return rowCount;
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -91,7 +91,7 @@ const categoryQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Return the category with items
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -109,7 +109,6 @@ const itemQueries = {
     },
 
     getItemById: async (itemId) => {
-        // Corrected function name for consistency
         const query = `
     SELECT items.*, COALESCE(json_agg(categories.*) FILTER(WHERE categories.id IS NOT NULL), '[]') AS categories 
     FROM items
@@ -121,7 +120,7 @@ const itemQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Return the item with categories
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -133,7 +132,7 @@ const itemQueries = {
     INSERT INTO items(name, category_ids, description, price, numberInStock) 
     VALUES($1, $2, $3, $4, $5) 
     ON CONFLICT(name) DO NOTHING
-    RETURNING *`; // Ensure to RETURN * to get the created item
+    RETURNING *`;
         const values = [
             item.name,
             item.category_ids,
@@ -144,7 +143,7 @@ const itemQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Return the created item
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -169,7 +168,7 @@ const itemQueries = {
 
         try {
             const { rows } = await pool.query(query, values);
-            return rows[0]; // Return the updated item
+            return rows[0];
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
@@ -182,7 +181,7 @@ const itemQueries = {
 
         try {
             const { rowCount } = await pool.query(query, values);
-            return rowCount; // Return number of rows deleted
+            return rowCount;
         } catch (err) {
             console.error('Error executing query', err.stack);
             throw err;
