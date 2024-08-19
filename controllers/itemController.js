@@ -97,7 +97,7 @@ exports.item_create_post = [
         // Create new book object
         const item = {
             name: req.body.name,
-            category: req.body.categories,
+            categoryIds: req.body.categories,
             description: req.body.description,
             price: req.body.price,
             numberInStock: req.body.numberInStock,
@@ -230,7 +230,7 @@ exports.item_update_post = [
         //Create book object, but remember _id or new id will be assigned
         const item = {
             name: req.body.name,
-            category:
+            categoryIds:
                 typeof req.body.categories === 'undefined'
                     ? []
                     : req.body.categories,
