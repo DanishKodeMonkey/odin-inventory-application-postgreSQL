@@ -18,12 +18,12 @@
                         <label for="category">Categories:</label>
                         <div>
                             <% for(let category of categories) { %>
-                                <label for="<%=category._id%>"><%=category.title%></label>
+                                <label for="<%=category.id%>"><%=category.title%></label>
                                 <div style="display:inline; padding-right:10px;">
                                     <% if (category.checked) { %>
-                                        <input type="checkbox" class="checkbox-input" name="categories" id="<%=category._id%>" value="<%=category._id%>" checked>
+                                        <input type="checkbox" class="checkbox-input" name="categories" id="<%=category.id%>" value="<%=category.id%>" checked>
                                     <% } else { %> 
-                                        <input type="checkbox" class="checkbox-input" name="categories" id="<%=category._id%>" value="<%=category._id%>">    
+                                        <input type="checkbox" class="checkbox-input" name="categories" id="<%=category.id%>" value="<%=category.id%>">    
                                     <% } %>     
                                 </div>
                             <% } %>
