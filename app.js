@@ -17,20 +17,29 @@ const catalogRouter = require('./routes/catalog.js');
 
 var app = express();
 
-// Mongoose connection to db
-const mongoose = require('mongoose');
-mongoose.set('strictQuery', false);
+// import database init scripts
+const initTables = require('./db/populateDB');
+const populateData = require('./db/populateData.js');
 
-// fetch credentials from .env excluded from git.
-const mongoDB = process.env.MONGO_URI;
+// attempt to populate database
+const initializeDatabase = async () => {
+    try {
+        // Run init scripts
+        await initTables();
+        await populateData();
+    } catch (error) {
+        console.error('Error during database initialization', error);
+    }
+};
 
-// log any errors
-main().catch(err => console.log(err));
+initializeDatabase()
+    .then(() => {
+        console.log('Database initialized and populated succesfully!');
+    })
+    .catch((err) => {
+        console.error('Failed to initialize and populate database', err);
+    });
 
-// establis hconnection
-async function main() {
-    await mongoose.connect(mongoDB);
-}
 // view engine setup
 app.set('views', path.join(__dirname, 'views/pages'));
 app.set('view engine', 'ejs');
