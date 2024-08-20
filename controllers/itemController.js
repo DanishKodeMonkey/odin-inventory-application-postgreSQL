@@ -25,6 +25,22 @@ exports.index = asyncHandler(async (req, res, next) => {
 // display list of all items
 exports.item_list = asyncHandler(async (req, res, next) => {
     const allItems = await itemQueries.getAllItems();
+
+    // Add urls to items and their associated categories
+    allItems.forEach((item) => {
+        item.url = `/catalog/items/${item.id}`;
+
+        // add url for each category associated with the item
+        if (item.category && item.category.length > 0) {
+            item.category = item.category.map((category) => {
+                return {
+                    ...category,
+                    url: `/catalog/categories/${category.id}`,
+                };
+            });
+        }
+    });
+
     res.render('item_list', { title: 'Item list', item_list: allItems });
 });
 
@@ -39,7 +55,16 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
         err.status = 404;
         return next(err);
     }
+    item.url = `/catalog/items/${item.id}`;
 
+    if (item.categories && item.categories.length > 0) {
+        item.categories = item.categories.map((category) => {
+            return {
+                ...category,
+                url: `/catalog/categories/${category.id}`,
+            };
+        });
+    }
     res.render('item_detail', {
         title: 'Item details',
         item: item,
