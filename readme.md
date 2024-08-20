@@ -4,6 +4,8 @@ Welcome to The Odin Inventory Management Application, or TOIMA, a proof of conce
 
 The project serves as an exercise in applying these technologies to create an efficient inventory management system.
 
+[Furthermore, this project is a refactoring of a earlier project built on the back of mongoDB of a similar name](https://github.com/DanishKodeMonkey/odin-inventory-application)
+
 ## Overview
 
 TOIMA is a project I started as a way to solidify the fundamentals of full-stack development. From structuring the backend using Node.js and Express, to populating and managing data with PostgreSQL, this prototype encapsulates the essence of creating a functional and scalable application.
@@ -35,3 +37,7 @@ Thanks to the Embedded JavaScript templating engine, we are able to combine temp
 ## How does it work?
 
 TOIMA uses the combined power of PostgreSQL, Node.js, and Express to deliver a simple and seamless experience for organizing and manipulating inventory data. This project has served as a great experience to learn the capabilities of a well-organized full-stack project.
+
+This project in particular was a great exercise in larger refactoring operations, having to dive back in to old code to refactor and optimize it to use data fetched from a postgreSQL database instead of a mongoDB one.
+
+[Have a look here!](https://odin-inventory-application-psql.adaptable.app/)
