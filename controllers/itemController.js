@@ -99,7 +99,7 @@ exports.item_create_post = [
     body('name', 'Name must not be empty.')
         .isLength({ min: 1, max: 50 })
         .escape(),
-    body('category.*').notEmpty().escape(),
+    body('categories.*').notEmpty().escape(),
     body('description', 'Description must not be empty')
         .isLength({ min: 1, max: 500 })
         .escape(),
@@ -133,15 +133,16 @@ exports.item_create_post = [
             // Errors were found, re-render form with values
 
             // Get all categories for re-render of form
-            const allCategories = await categoryQueries
-                .getAllCategories()
+            const allCategories = await categoryQueries.getAllCategories();
+
+            // Ensure categoryIds is always an array
+            const selectedCategoryIds = Array.isArray(item.categoryIds) ? item.categoryIds : [];
 
             // Mark selected categories as checked
-            for (const category of allCategories) {
-                if (item.category.includes(category.id)) {
-                    category.checked = 'true';
-                }
-            }
+            allCategories.forEach(category => {
+                category.checked = selectedCategoryIds.includes(category.id) ? 'true' : 'false';
+            });
+
             res.render('item_form', {
                 title: 'Create item',
                 categories: allCategories,
@@ -230,7 +231,7 @@ exports.item_update_post = [
     body('name', 'Name must not be empty.')
         .isLength({ min: 1, max: 50 })
         .escape(),
-    body('category.*').notEmpty().escape(),
+    body('categories.*').notEmpty().escape(),
     body('description', 'Description must not be empty')
         .isLength({ min: 1, max: 500 })
         .escape(),
@@ -268,12 +269,14 @@ exports.item_update_post = [
 
             const categories = await categoryQueries.getAllCategories();
 
-            // mark selected categories as checked
-            for (const category of categories) {
-                if (item.category.includes(category.id)) {
-                    category.checked = 'true';
-                }
-            }
+            // Ensure categoryIds is always an array
+            const selectedCategoryIds = Array.isArray(item.categoryIds) ? item.categoryIds : [];
+
+            // Mark selected categories as checked
+            categories.forEach(category => {
+                category.checked = selectedCategoryIds.includes(category.id) ? 'true' : 'false';
+            });
+
             res.render('item_form', {
                 title: 'Update item',
                 categories: categories,
