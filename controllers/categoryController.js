@@ -25,6 +25,20 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
     const categoryWithItems = await categoryQueries.getCategoryByIdWithItems(
         req.params.id
     );
+    if (!categoryWithItems) {
+        const err = new Error('Category not found');
+        err.result = 404;
+        return next(err);
+    }
+
+    // add url for the category
+    categoryWithItems.url = `/catalog/categories/${categoryWithItems.id}`;
+
+    // add url for each item in category
+    categoryWithItems.items = categoryWithItems.items.map((item) => {
+        item.url = `/catalog/items/${item.id}`;
+        return item;
+    });
 
     res.render('category_detail', {
         title: 'Category details',
@@ -100,6 +114,20 @@ exports.category_delete_get = asyncHandler(async (req, res, next) => {
     const categoryWithItems = await categoryQueries.getCategoryByIdWithItems(
         req.params.id
     );
+    if (!categoryWithItems) {
+        const err = new Error('Category not found');
+        err.result = 404;
+        return next(err);
+    }
+
+    // add url for the category
+    categoryWithItems.url = `/catalog/categories/${categoryWithItems.id}`;
+
+    // add url for each item in category
+    categoryWithItems.items = categoryWithItems.items.map((item) => {
+        item.url = `/catalog/items/${item.id}`;
+        return item;
+    });
 
     // no categories found(by id)
     if (categoryWithItems === null) {
