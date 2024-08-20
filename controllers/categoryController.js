@@ -8,8 +8,12 @@ const { categoryQueries } = require('../db/queries');
 
 // display list of all categories
 exports.category_list = asyncHandler(async (req, res, next) => {
-    const allCategories = await categoryQueries.getAllCategories();
+    const resultCategories = await categoryQueries.getAllCategories();
 
+    const allCategories = resultCategories.map((category) => {
+        category.url = `/catalog/categories/${category.id}`;
+        return category;
+    });
     res.render('category_list', {
         title: 'Categories list',
         category_list: allCategories,

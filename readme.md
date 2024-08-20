@@ -1,6 +1,6 @@
 # Inventory management application
 
-Welcome to The Odin Inventory Management Application, or TOIMA, a proof of concept prototype build to demonstrate the capabilities of a simple full stack application utilizing Node.js, Express, and postgreSQL.
+Welcome to The Odin Inventory Management Application, or TOIMA, a proof of concept prototype build to demonstrate the capabilities of a simple full stack application utilizing Node.js, Express, and postgresql.
 
 The project serves as a exercise in applying these technologies to create an efficient inventory management system
 
