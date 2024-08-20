@@ -90,9 +90,10 @@ exports.category_create_post = [
         } else {
             // Data is valid, proceed
             // Check if category already exist
-            const categoryExists = await categoryQueries.getCategoryById(
+            const categoryExists = await categoryQueries.getCategoryByTitle(
                 req.body.title
             );
+
             if (categoryExists) {
                 //Category exists, redirect to detail page, dont save.
                 res.redirect(`/catalog/categories/${categoryExists.id}`);

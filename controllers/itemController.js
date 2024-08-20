@@ -135,12 +135,10 @@ exports.item_create_post = [
             // Get all categories for re-render of form
             const allCategories = await categoryQueries
                 .getAllCategories()
-                .sort({ title: 1 })
-                .exec();
 
             // Mark selected categories as checked
             for (const category of allCategories) {
-                if (item.category.includes(category._id)) {
+                if (item.category.includes(category.id)) {
                     category.checked = 'true';
                 }
             }

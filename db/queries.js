@@ -37,6 +37,18 @@ const categoryQueries = {
         }
     },
 
+    getCategoryByTitle: async (title) => {
+        const query = 'SELECT * FROM categories WHERE title = $1';
+        const values = [title];
+        try {
+            const { rows } = await pool.query(query, values);
+            return rows[0];
+        } catch (err) {
+            console.error('Error executing query', err.stack);
+            throw err;
+        }
+    },
+
     createCategory: async (category) => {
         const query =
             'INSERT INTO categories(title, description) VALUES ($1, $2) RETURNING *';
