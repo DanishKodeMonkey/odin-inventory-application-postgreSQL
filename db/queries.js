@@ -103,9 +103,16 @@ const categoryQueries = {
 /* Items */
 const itemQueries = {
     getAllItems: async () => {
-        const { rows } = await pool.query(
-            `SELECT * FROM items ORDER BY name ASC`
-        );
+        const query = `
+       SELECT items.*, 
+       COALESCE(json_agg(categories.*) FILTER(WHERE categories.id IS NOT NULL), '[]') AS categories
+       FROM items
+       LEFT JOIN item_categories ON items.id = item_categories.item_id
+       LEFT JOIN categories ON item_categories.category_id = categories.id
+       GROUP BY items.id
+       ORDER BY items.name ASC
+       `;
+        const { rows } = await pool.query(query);
         return rows;
     },
 
