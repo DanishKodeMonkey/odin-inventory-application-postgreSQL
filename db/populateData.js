@@ -286,4 +286,4 @@ const populateData = async () => {
     }
 };
 
-populateData();
+module.exports = populateData;
